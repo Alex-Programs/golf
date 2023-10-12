@@ -1,0 +1,1 @@
+r=range;print([x for x in r(2,1024) if len([j for j in r(2,x) if x%j==0])==0])
