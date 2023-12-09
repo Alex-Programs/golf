@@ -20,12 +20,32 @@ def map_lookup(number, maps):
     
     return number
 
+def reverse_map_lookup(number, maps):
+    for lookup in maps:
+        #print(f"Lookup {str(number)}: In range {lookup.to_range[0]}-{lookup.to_range[1]} {lookup.from_range[0]}-{lookup.from_range[1]}")
+        if number >= lookup.to_range[0] and number <= lookup.to_range[1]:
+            number = lookup.from_range[0] + (number - lookup.to_range[0])
+            #print(f"Number is now {number}")
+            break
+    
+    return number
+
+def check_if_num_in_seed_ranges(number, seed_pairs):
+    for seed_pair in seed_pairs:
+        if number >= seed_pair[0] and number <= seed_pair[0] + seed_pair[1]:
+            return True
+    
+    return False
+
 with open("input.txt") as f:
     sections = f.read().split("\n\n")
     
     seeds = sections[0].split("\n")[0].split(":")[1].strip().replace("  ", " ").replace("   ", " ").split(" ")
     seeds = [int(x) for x in seeds]
-    print(seeds)
+    seed_pairs = [(seeds[i], seeds[i+1]) for i in range(0, len(seeds), 2)]
+    print(seed_pairs)
+
+    #import sys; sys.exit()
 
     maps = []
 
@@ -54,14 +74,21 @@ with open("input.txt") as f:
         
         maps.append(Section(name, maps_buff))
 
-    location_lookup = maps[-1].maps
+    i = 0
+    while True:
+        seed = i
+        #print("--")
+        for m in reversed(maps):
+            #print(seed)\\\
+            seed = reverse_map_lookup(seed, m.maps)
+        
+        #print(seed)
 
-    smallest = 9000000000000
-    for seed in seeds:
-        # Cascade through every layer
-        for section in maps:
-            seed = map_lookup(seed, section.maps)
-        if seed < smallest:
-            smallest = seed
+        if check_if_num_in_seed_ranges(seed, seed_pairs):
+            print(f"Found seed: {seed} corresponds to {i}")
+            break
 
-    print(smallest)
+        i += 1
+
+        if i % 100000 == 0:
+            print(i)
